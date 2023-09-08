@@ -1,0 +1,6 @@
+- Name: FeatherMaddy
+  Version: 0.6.0
+  DLL: bin/FeatherMaddy.dll
+  Dependencies:
+    - Name: Everest
+      Version: 1.3471.0
