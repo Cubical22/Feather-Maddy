@@ -33,3 +33,7 @@ when you have two dashes, you only get one feather, but get to do a normal dash 
 
 Also the hair color sometimes works, sometimes doesn't. I wanted gold to replace the blue color, but hey
 , **it is what it is**.
+
+version 0.8:
+- added the "Feather Shine" ability, making the mod being a little more challenging
+turn on this feature from the modMenu
