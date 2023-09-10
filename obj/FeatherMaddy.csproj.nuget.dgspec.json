@@ -1,0 +1,59 @@
+{
+  "format": 1,
+  "restore": {
+    "D:\\Games\\celeste\\Celeste v1 4 0 0\\Mods\\FeatherMaddy\\FeatherMaddy.csproj": {}
+  },
+  "projects": {
+    "D:\\Games\\celeste\\Celeste v1 4 0 0\\Mods\\FeatherMaddy\\FeatherMaddy.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "D:\\Games\\celeste\\Celeste v1 4 0 0\\Mods\\FeatherMaddy\\FeatherMaddy.csproj",
+        "projectName": "FeatherMaddy",
+        "projectPath": "D:\\Games\\celeste\\Celeste v1 4 0 0\\Mods\\FeatherMaddy\\FeatherMaddy.csproj",
+        "packagesPath": "C:\\Users\\shargh pc\\.nuget\\packages\\",
+        "outputPath": "D:\\Games\\celeste\\Celeste v1 4 0 0\\Mods\\FeatherMaddy\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\shargh pc\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net452"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net452": {
+            "targetAlias": "net452",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net452": {
+          "targetAlias": "net452",
+          "dependencies": {
+            "MonoMod.RuntimeDetour": {
+              "include": "Compile, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[22.1.4.3, )"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.400\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

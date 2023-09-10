@@ -1,0 +1,9 @@
+D:\Games\celeste\Celeste v1 4 0 0\Mods\FeatherMaddy\bin\Debug\net452\FeatherMaddy.dll
+D:\Games\celeste\Celeste v1 4 0 0\Mods\FeatherMaddy\bin\Debug\net452\FeatherMaddy.pdb
+D:\Games\celeste\Celeste v1 4 0 0\Mods\FeatherMaddy\obj\Debug\net452\FeatherMaddy.csproj.AssemblyReference.cache
+D:\Games\celeste\Celeste v1 4 0 0\Mods\FeatherMaddy\obj\Debug\net452\FeatherMaddy.GeneratedMSBuildEditorConfig.editorconfig
+D:\Games\celeste\Celeste v1 4 0 0\Mods\FeatherMaddy\obj\Debug\net452\FeatherMaddy.AssemblyInfoInputs.cache
+D:\Games\celeste\Celeste v1 4 0 0\Mods\FeatherMaddy\obj\Debug\net452\FeatherMaddy.AssemblyInfo.cs
+D:\Games\celeste\Celeste v1 4 0 0\Mods\FeatherMaddy\obj\Debug\net452\FeatherMaddy.csproj.CoreCompileInputs.cache
+D:\Games\celeste\Celeste v1 4 0 0\Mods\FeatherMaddy\obj\Debug\net452\FeatherMaddy.dll
+D:\Games\celeste\Celeste v1 4 0 0\Mods\FeatherMaddy\obj\Debug\net452\FeatherMaddy.pdb
