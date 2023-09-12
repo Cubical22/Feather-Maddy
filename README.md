@@ -37,3 +37,7 @@ Also the hair color sometimes works, sometimes doesn't. I wanted gold to replace
 version 0.8:
 - added the "Feather Shine" ability, making the mod being a little more challenging
 turn on this feature from the modMenu
+
+version 0.8.1:
+- fixed the bug where with the `Feather Fly` option off, the feathers
+would still not refill your dashes after exiting.
