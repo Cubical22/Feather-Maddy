@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Monocle;
 
@@ -188,7 +189,8 @@ namespace Celeste.Mod.FeatherMaddy
 
         private void DecreaseDashOnStarFlyEnd(On.Celeste.Player.orig_StarFlyEnd orig, Player self)
         {
-            self.Dashes--;
+            if (Settings.FeatherFly)
+                self.Dashes--;
             _featherCount--;
 
             orig(self);
