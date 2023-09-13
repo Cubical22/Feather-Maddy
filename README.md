@@ -41,3 +41,7 @@ turn on this feature from the modMenu
 version 0.8.1:
 - fixed the bug where with the `Feather Fly` option off, the feathers
 would still not refill your dashes after exiting.
+
+version 1.1:
+- fixed the bug where the lighting would slowly decrease with each death, when the `Feather Shine` option was
+set to off
