@@ -39,6 +39,7 @@ namespace Celeste.Mod.FeatherMaddy
         private bool _stillCastingFeather = false; // this var is used to stop the feather spawning loop
 
         private float? _levelStartingAlpha;
+        private Level _currentLevel;
 
         private SoundSource _currentFeatherPlaySoundSource = null;
 
@@ -51,6 +52,7 @@ namespace Celeste.Mod.FeatherMaddy
             On.Celeste.Player.RefillDash += RefillFeatherCountOnFloor;
             On.Celeste.Player.StarFlyEnd += DecreaseDashOnStarFlyEnd;
             On.Celeste.Player.Update += UpdateHairColor;
+            
             On.Celeste.Refill.OnPlayer += RefillFeatherCountAddition;
         }
 
@@ -59,14 +61,21 @@ namespace Celeste.Mod.FeatherMaddy
             if (_levelStartingAlpha != null && !Settings.DarkRooms)
                 self.Lighting.Alpha = (float)_levelStartingAlpha;
             orig(self, next, direction);
+            
+            Logger.Log(nameof(FeatherMaddyModule), "a transition happened");
         }
 
-        private void LevelLoadingConfig(On.Celeste.Level.orig_LoadLevel orig, Level self, Player.IntroTypes introType, bool fromLoader)
+        private void LevelLoadingConfig(On.Celeste.Level.orig_LoadLevel orig, Level self, Player.IntroTypes introType,
+            bool fromLoader)
         {
             orig(self, introType, fromLoader);
             if (Settings.DarkRooms)
                 self.Lighting.Alpha = SceneLightingMaxAmount;
-            else _levelStartingAlpha = self.Lighting.Alpha; // this part may cause some issues
+            else if (_currentLevel != self || _currentLevel == null)
+            {
+                _currentLevel = self;
+                _levelStartingAlpha = self.Lighting.Alpha;
+            }
         }
 
         private void RefillFeatherCountAddition(On.Celeste.Refill.orig_OnPlayer orig, Refill self, Player player)
@@ -91,68 +100,66 @@ namespace Celeste.Mod.FeatherMaddy
             }
 
             // this section is used to make the duck light system work
-            { 
-                Scene scene = Engine.Scene;
-                if (scene == null || scene.GetType() != typeof(Level)) return;
-                Level lvl = scene as Level;
-                
-                if (lvl == null) return;
+            Scene scene = Engine.Scene;
+            if (scene == null || scene.GetType() != typeof(Level)) return;
+            Level lvl = scene as Level;
+            
+            if (lvl == null) return;
 
-                _levelStartingAlpha ??= lvl.BaseLightingAlpha;
+            _levelStartingAlpha ??= lvl.BaseLightingAlpha;
 
-                if (Settings.DarkRooms)
+            if (Settings.DarkRooms)
+            {
+                if (self.Ducking && Input.GrabCheck)
                 {
-                    if (self.Ducking && Input.GrabCheck)
-                    {
-                        // update the delay time amount
-                        _featherLightingProgress -= Engine.DeltaTime * LightChangeSpeedMultiplier;
-                        
-                        // this section is used to spawn the particles used on this ability
-                        _stillCastingFeather = true;
-                        
-                        self.Add(new Coroutine(FeatherParticleSpawn(lvl, self)));
+                    // update the delay time amount
+                    _featherLightingProgress -= Engine.DeltaTime * LightChangeSpeedMultiplier;
+                    
+                    // this section is used to spawn the particles used on this ability
+                    _stillCastingFeather = true;
+                    
+                    self.Add(new Coroutine(FeatherParticleSpawn(lvl, self)));
 
-                        _currentFeatherPlaySoundSource ??= new SoundSource();
+                    _currentFeatherPlaySoundSource ??= new SoundSource();
 
-                        if (!_currentFeatherPlaySoundSource.Playing)
-                            _currentFeatherPlaySoundSource.Play("event:/game/06_reflection/feather_state_loop");
-                    }
-                    else
-                    {
-                        _featherLightingProgress += Engine.DeltaTime * LightChangeSpeedMultiplier;
-
-                        _stillCastingFeather = false;
-
-                        if (_currentFeatherPlaySoundSource is { Playing: true })
-                        {
-                            _currentFeatherPlaySoundSource.Stop();
-
-                            if (!Settings.FeatherFly) // this is just used to make the hair color go back to default
-                            { // after using the feather shine ability
-                                self.OverrideHairColor = null;
-                            }
-                        }
-                    }
-
-
-                    // implementing the lighting effect based on the var that was defined
-                    lvl.BaseLightingAlpha = SceneLightingMaxAmount;
-
-                    _featherLightingProgress = _featherLightingProgress switch
-                    {
-                        < SceneLightingMinAmount => SceneLightingMinAmount,
-                        > SceneLightingMaxAmount => SceneLightingMaxAmount,
-                        _ => _featherLightingProgress
-                    };
-
-                    lvl.Lighting.Alpha = _featherLightingProgress;
+                    if (!_currentFeatherPlaySoundSource.Playing)
+                        _currentFeatherPlaySoundSource.Play("event:/game/06_reflection/feather_state_loop");
                 }
                 else
                 {
-                    if (_levelStartingAlpha == null) return;
-                    lvl.Lighting.Alpha = (float)_levelStartingAlpha;
-                    lvl.BaseLightingAlpha = (float)_levelStartingAlpha;
-                }  
+                    _featherLightingProgress += Engine.DeltaTime * LightChangeSpeedMultiplier;
+
+                    _stillCastingFeather = false;
+
+                    if (_currentFeatherPlaySoundSource is { Playing: true })
+                    {
+                        _currentFeatherPlaySoundSource.Stop();
+
+                        if (!Settings.FeatherFly) // this is just used to make the hair color go back to default
+                        { // after using the feather shine ability
+                            self.OverrideHairColor = null;
+                        }
+                    }
+                }
+
+
+                // implementing the lighting effect based on the var that was defined
+                lvl.BaseLightingAlpha = SceneLightingMaxAmount;
+
+                _featherLightingProgress = _featherLightingProgress switch
+                {
+                    < SceneLightingMinAmount => SceneLightingMinAmount,
+                    > SceneLightingMaxAmount => SceneLightingMaxAmount,
+                    _ => _featherLightingProgress
+                };
+
+                lvl.Lighting.Alpha = _featherLightingProgress;
+            }
+            else
+            {
+                if (_levelStartingAlpha == null) return;
+                lvl.Lighting.Alpha = (float)_levelStartingAlpha;
+                lvl.BaseLightingAlpha = (float)_levelStartingAlpha;
             }
         }
 
@@ -173,7 +180,11 @@ namespace Celeste.Mod.FeatherMaddy
             if (_featherCount != 0)
             {
                 if (Settings.FeatherFly)
+                {
                     self.StartStarFly();
+                    Audio.Play("event:/game/06_reflection/feather_bubble_get",
+                        self.Position);
+                }
                 _featherCount--;
             }
 
@@ -205,6 +216,7 @@ namespace Celeste.Mod.FeatherMaddy
             On.Celeste.Player.RefillDash -= RefillFeatherCountOnFloor;
             On.Celeste.Player.StarFlyEnd -= DecreaseDashOnStarFlyEnd;
             On.Celeste.Player.Update -= UpdateHairColor;
+            
             On.Celeste.Refill.OnPlayer -= RefillFeatherCountAddition;
         }
     }
