@@ -52,8 +52,15 @@ namespace Celeste.Mod.FeatherMaddy
             On.Celeste.Player.RefillDash += RefillFeatherCountOnFloor;
             On.Celeste.Player.StarFlyEnd += DecreaseDashOnStarFlyEnd;
             On.Celeste.Player.Update += UpdateHairColor;
+            On.Celeste.Player.IntroRespawnBegin += RefillFeatherOnRespawn;
             
             On.Celeste.Refill.OnPlayer += RefillFeatherCountAddition;
+        }
+
+        private void RefillFeatherOnRespawn(On.Celeste.Player.orig_IntroRespawnBegin orig,Player self)
+        {
+            orig(self);
+            _featherCount = MaxFeatherCount;
         }
 
         private void TransitionLightingSet(On.Celeste.Level.orig_TransitionTo orig, Level self, LevelData next, Vector2 direction)
@@ -171,7 +178,7 @@ namespace Celeste.Mod.FeatherMaddy
                     self.Position - Vector2.UnitY * 5f, Vector2.One * 10f);
                 self.OverrideHairColor = Color.Gold;
 
-                yield return 10;
+                yield return 50;
             }
         }
 
@@ -216,6 +223,7 @@ namespace Celeste.Mod.FeatherMaddy
             On.Celeste.Player.RefillDash -= RefillFeatherCountOnFloor;
             On.Celeste.Player.StarFlyEnd -= DecreaseDashOnStarFlyEnd;
             On.Celeste.Player.Update -= UpdateHairColor;
+            On.Celeste.Player.IntroRespawnBegin -= RefillFeatherOnRespawn;
             
             On.Celeste.Refill.OnPlayer -= RefillFeatherCountAddition;
         }
