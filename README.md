@@ -22,17 +22,7 @@ now, there are still limits:
 5. The same thing from number 4 applies to every other dash dependent action (including feathers with shields, that 
 are now almost useless :) )
 
-# Issues
-
-since this is my first mod, there are some issues that require fixing.
-for some reason the mod really dislikes chapters that have two dashes.
-I tried so many different mechanics, and I chose my favorite to leave in the game.
-when you have two dashes, you only get one feather, but get to do a normal dash after the use.
-
-> *not intended, but* you can have two feathers, if you WAIT for the first one to finish
-
-Also the hair color sometimes works, sometimes doesn't. I wanted gold to replace the blue color, but hey
-, **it is what it is**.
+# Updates
 
 version 0.8:
 - added the "Feather Shine" ability, making the mod being a little more challenging
@@ -45,3 +35,6 @@ would still not refill your dashes after exiting.
 version 1.1:
 - fixed the bug where the lighting would slowly decrease with each death, when the `Feather Shine` option was
 set to off
+
+version 1.15:
+- added delta time to the lighting speed change to make be the same on every performance level
