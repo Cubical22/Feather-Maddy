@@ -1,3 +1,5 @@
+using System.Configuration;
+
 namespace Celeste.Mod.FeatherMaddy
 {
     public class FeatherMaddyModuleSettings : EverestModuleSettings
@@ -10,5 +12,9 @@ namespace Celeste.Mod.FeatherMaddy
         [SettingSubText("this will make the game a little harder.\n" +
                         "hold (Down + Grab) to simply light up the room you are in, using your Feather Shine ability")]
         public bool DarkRooms { get; set; } = false;
+
+        [SettingName("Effects")]
+        [SettingSubText("just some cool effects drawn on the player when this option is enabled")]
+        public bool PlayerEffects { get; set; } = true;
     }
 }

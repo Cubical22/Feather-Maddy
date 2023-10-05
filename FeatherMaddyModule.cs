@@ -35,13 +35,16 @@ namespace Celeste.Mod.FeatherMaddy
         private float _featherLightingProgress = 1f;
         private const float SceneLightingMaxAmount = 1f;
         private const float SceneLightingMinAmount = 0.2f;
-        private const float LightChangeSpeedMultiplier = 0.5f;
+        private const float LightChangeSpeedMultiplier = 1f;
         private bool _stillCastingFeather = false; // this var is used to stop the feather spawning loop
 
         private float? _levelStartingAlpha;
         private Level _currentLevel;
 
         private SoundSource _currentFeatherPlaySoundSource = null;
+        
+        private Vector2 _playerFxPosition = Vector2.Zero;
+        private float _animationTime = 0f;
 
         public override void Load()
         {
@@ -53,8 +56,59 @@ namespace Celeste.Mod.FeatherMaddy
             On.Celeste.Player.StarFlyEnd += DecreaseDashOnStarFlyEnd;
             On.Celeste.Player.Update += UpdateHairColor;
             On.Celeste.Player.IntroRespawnBegin += RefillFeatherOnRespawn;
+            On.Celeste.Player.Render += DrawPlayerEffects;
             
             On.Celeste.Refill.OnPlayer += RefillFeatherCountAddition;
+        }
+
+        private void DrawPlayerEffects(On.Celeste.Player.orig_Render orig, Player self)
+        {
+            var offsetUnit = self.StateMachine.State is 5 or 2 or 4 ? 8f : 6f; // handling if the player
+            // is using boosters or not
+            _playerFxPosition = self.Position - Vector2.UnitY * offsetUnit;
+            // this is used to make the growing effect on featherShine
+            var subScale = 0f;
+            if (Settings.DarkRooms)
+            {
+                subScale = (SceneLightingMinAmount - _featherLightingProgress) /
+                                 (SceneLightingMaxAmount - SceneLightingMinAmount) * 7f;
+            }
+
+            if (Settings.PlayerEffects)
+            {
+                var topCircleOffset = (float)Math.Sin(_animationTime) * 3f;
+                Draw.Circle(_playerFxPosition
+                    , 39f + topCircleOffset - subScale, Color.Goldenrod, 1f, 10);
+                var middleCircleOffset = (float)Math.Sin(_animationTime + 0.7f) * 3f;
+                Draw.Circle(_playerFxPosition
+                    , 28f + middleCircleOffset - subScale, Color.Gold, 2f, 10);
+                var bottomCircleOffset = (float)Math.Sin(_animationTime + 1.3f) * 3f;
+                Draw.Circle(_playerFxPosition, 15f + bottomCircleOffset - subScale, 
+                    Color.Lerp(Color.Gold, Color.BlueViolet, 0.3f), 3f, 10);
+
+                Draw.Line(_playerFxPosition,
+                    _playerFxPosition +
+                    new Vector2((float)Math.Cos(_animationTime + Math.PI * 2 / 3) * 
+                                (39f + topCircleOffset - subScale),
+                        (float)Math.Sin(_animationTime + Math.PI * 2 / 3) * 
+                                (39f + topCircleOffset - subScale)),
+                    Color.Goldenrod);
+                Draw.Line(_playerFxPosition,
+                    _playerFxPosition +
+                    new Vector2((float)Math.Cos(_animationTime) * (28f + middleCircleOffset - subScale),
+                        (float)Math.Sin(_animationTime) * (28f + middleCircleOffset - subScale)),
+                    Color.Gold);
+                Draw.Line(_playerFxPosition,
+                    _playerFxPosition +
+                    new Vector2((float)Math.Cos(_animationTime + Math.PI * 4 / 3) *
+                                (15f + bottomCircleOffset - subScale),
+                        (float)Math.Sin(_animationTime + Math.PI * 4 / 3) * 
+                                (15f + bottomCircleOffset - subScale)),
+                    Color.Lerp(Color.Gold, Color.BlueViolet, 0.3f));
+            }
+            
+            Logger.Log(nameof(FeatherMaddyModule), _playerFxPosition.ToString());
+            orig(self);
         }
 
         private void RefillFeatherOnRespawn(On.Celeste.Player.orig_IntroRespawnBegin orig,Player self)
@@ -66,9 +120,18 @@ namespace Celeste.Mod.FeatherMaddy
         private void TransitionLightingSet(On.Celeste.Level.orig_TransitionTo orig, Level self, LevelData next, Vector2 direction)
         {
             if (_levelStartingAlpha != null && !Settings.DarkRooms)
+            {
                 self.Lighting.Alpha = (float)_levelStartingAlpha;
-            orig(self, next, direction);
+            }
             
+            // handling in game darkrooms
+            if (self.DarkRoom)
+            {
+                self.Lighting.Alpha = self.Session.DarkRoomAlpha;
+            }
+            
+            orig(self, next, direction);
+
             Logger.Log(nameof(FeatherMaddyModule), "a transition happened");
         }
 
@@ -94,6 +157,8 @@ namespace Celeste.Mod.FeatherMaddy
         private void UpdateHairColor(On.Celeste.Player.orig_Update orig, Player self)
         {
             orig(self);
+
+            _animationTime += Engine.DeltaTime;
             if (Settings.FeatherFly)
             {
                 if (_featherCount == 0)
@@ -126,6 +191,7 @@ namespace Celeste.Mod.FeatherMaddy
                     _stillCastingFeather = true;
                     
                     self.Add(new Coroutine(FeatherParticleSpawn(lvl, self)));
+                    self.OverrideHairColor = Color.Gold;
 
                     _currentFeatherPlaySoundSource ??= new SoundSource();
 
@@ -153,19 +219,25 @@ namespace Celeste.Mod.FeatherMaddy
                 // implementing the lighting effect based on the var that was defined
                 lvl.BaseLightingAlpha = SceneLightingMaxAmount;
 
-                _featherLightingProgress = _featherLightingProgress switch
+                /* the old way
+                 _featherLightingProgress = _featherLightingProgress switch
                 {
                     < SceneLightingMinAmount => SceneLightingMinAmount,
                     > SceneLightingMaxAmount => SceneLightingMaxAmount,
                     _ => _featherLightingProgress
                 };
+                */ 
+                
+                // the new way
+                _featherLightingProgress = Math.Min(_featherLightingProgress, SceneLightingMaxAmount);
+                _featherLightingProgress = Math.Max(_featherLightingProgress, SceneLightingMinAmount);
 
                 lvl.Lighting.Alpha = _featherLightingProgress;
             }
             else
             {
                 if (_levelStartingAlpha == null) return;
-                lvl.Lighting.Alpha = (float)_levelStartingAlpha;
+                // lvl.Lighting.Alpha = (float)_levelStartingAlpha;
                 lvl.BaseLightingAlpha = (float)_levelStartingAlpha;
             }
         }
@@ -176,7 +248,6 @@ namespace Celeste.Mod.FeatherMaddy
             {
                 lvl.ParticlesFG.Emit(FlyFeather.P_Respawn, 4, 
                     self.Position - Vector2.UnitY * 5f, Vector2.One * 10f);
-                self.OverrideHairColor = Color.Gold;
 
                 yield return 50;
             }
@@ -191,6 +262,11 @@ namespace Celeste.Mod.FeatherMaddy
                     self.StartStarFly();
                     Audio.Play("event:/game/06_reflection/feather_bubble_get",
                         self.Position);
+                    if (Settings.PlayerEffects)
+                    {
+                        if (self.Scene is Level lvl)
+                            lvl.ParticlesFG.Emit(FlyFeather.P_Collect, 10, _playerFxPosition, Vector2.One * 6f);
+                    }
                 }
                 _featherCount--;
             }
