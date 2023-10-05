@@ -38,3 +38,7 @@ set to off
 
 version 1.15:
 - added delta time to the lighting speed change to make be the same on every performance level
+
+version 1.3:
+- fixed the problem with lighting on levels that have dark rooms
+- added the `PlayerEffects` option
